@@ -10,7 +10,7 @@ const Login = ({navigation}) => {
     const [contraseña, setContraseña] = useState('');
 
     const onSignInPressed = () => {
-        console.warn("Home Pressed");
+        navigation.navigate('Contenido');
     }
 
     const onForgotPasswordPressed = () => {
