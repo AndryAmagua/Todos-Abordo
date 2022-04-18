@@ -22,7 +22,7 @@ const Login = ({ navigation }) => {
   }
 
   const onSignUpPressed = () => {
-    navigation.navigate('RegistroUsuario');
+    navigation.navigate('SignUp');
   }
 
   return (

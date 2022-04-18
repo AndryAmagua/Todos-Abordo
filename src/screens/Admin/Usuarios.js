@@ -20,6 +20,7 @@ const Usuarios = () => {
     useEffect(() => {
         getUsuarios();
     }, []);
+    
     return (
         <View style={{ padding: 24 }}>
             {isLoading ? <ActivityIndicator /> : (

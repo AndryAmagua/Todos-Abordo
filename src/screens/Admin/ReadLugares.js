@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, View, Pressable, Modal, TextInput } from 'react-native';
 
-const Lugares = () => {
+const ReadLugares = ({navigation}) => {
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
 
     const [titulo, setTitulo] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -11,8 +12,6 @@ const Lugares = () => {
     const [ubicacion, setUbicacion] = useState('');
     const [contacto, setContacto] = useState('');
     const [servicio, setServicio] = useState('');
-    const [menu, setMenu] = useState('');
-    const [promociones, setPromociones] = useState('');
     const [valoracion, setValoracion] = useState('');
 
     function crearLugar() {
@@ -28,11 +27,19 @@ const Lugares = () => {
                 ubicacion: ubicacion,
                 contacto: contacto,
                 servicio: servicio,
-                menu: menu,
-                promociones: promociones,
                 valoracion: valoracion,
             })
-        }).then(() => setModalVisible(!modalVisible))
+        }).then(() => {
+            setModalVisible(!modalVisible);
+            setTitulo('');
+            setDescripcion('');
+            setFotografias('');
+            setUbicacion('');
+            setContacto('');
+            setServicio('');
+            setValoracion('');
+            getLugares();
+        })
     }
 
     const getLugares = async () => {
@@ -51,8 +58,6 @@ const Lugares = () => {
         getLugares();
     }, []);
 
-    const [modalVisible, setModalVisible] = useState(false);
-
     return (
         <View style={{ padding: 24 }}>
             <Pressable
@@ -66,6 +71,13 @@ const Lugares = () => {
                 visible={modalVisible}
                 onRequestClose={() => {
                     setModalVisible(!modalVisible);
+                    setTitulo('');
+                    setDescripcion('');
+                    setFotografias('');
+                    setUbicacion('');
+                    setContacto('');
+                    setServicio('');
+                    setValoracion('');
                 }}
             >
                 <View>
@@ -101,16 +113,6 @@ const Lugares = () => {
                         placeholder="servicio"
                     />
                     <TextInput
-                        value={menu}
-                        onChangeText={setMenu}
-                        placeholder="menu"
-                    />
-                    <TextInput
-                        value={promociones}
-                        onChangeText={setPromociones}
-                        placeholder="promociones"
-                    />
-                    <TextInput
                         value={valoracion}
                         onChangeText={setValoracion}
                         placeholder="valoracion"
@@ -118,7 +120,7 @@ const Lugares = () => {
                     <Pressable
                         onPress={() => crearLugar()}
                     >
-                        <Text>Hide Modal</Text>
+                        <Text>CREAR</Text>
                     </Pressable>
                 </View>
             </Modal>
@@ -135,7 +137,10 @@ const Lugares = () => {
                             borderRadius: 5,
                             marginVertical: 10
                         }}>
-                            <Text>{item.titulo}, {item.descripcion}</Text>
+                            <Pressable
+                            onPress={() => navigation.navigate('EditLugares', { lugar: item })}>
+                                <Text>{item.titulo}, {item.descripcion}</Text>
+                            </Pressable>
                         </View>
                     )}
                 />
@@ -144,4 +149,4 @@ const Lugares = () => {
     )
 }
 
-export default Lugares
+export default ReadLugares

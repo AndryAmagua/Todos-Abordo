@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, Pressable } from 'react-native';
 
-const Categoria = (props) => {
+const Categoria = ({ navigation, route }) => {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
+  var categoria = route.name.split('-')
+
   const getLugares = async () => {
     try {
-      const response = await fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares/categoria/' + props.route.name);
+      const response = await fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares/categoria/' + categoria[0]);
       const json = await response.json();
       setData(json);
     } catch (error) {
@@ -31,8 +33,13 @@ const Categoria = (props) => {
             <View style={{
               backgroundColor: "beige",
               borderWidth: 1,
-              padding: 10 }}>
-              <Text>{item.titulo}, {item.descripcion}</Text>
+              padding: 10
+            }}>
+              <Pressable
+              onPress={() => navigation.navigate('Lugar', {lugar: item})}
+              >
+                <Text>{item.titulo}, {item.descripcion}</Text>
+              </Pressable>
             </View>
           )}
         />
