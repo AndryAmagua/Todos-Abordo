@@ -1,17 +1,26 @@
 # Todos-Abordo
 npm install o yarn install para instalar los modulos
 
-react navigation
+-REACT NAVIGATION
+
 npm install @react-navigation/native
+
 npm install react-native-screens react-native-safe-area-context
+
 npm install @react-navigation/native-stack
+
 npm install @react-navigation/bottom-tabs
+
 npm install @react-navigation/drawer
+
 npm install react-native-gesture-handler react-native-reanimated
 
-formik y yup
+-FORMIK Y YUP
+
 yarn add formik
+
 yarn add yup
 
-componente picker
+-COMPONENTE PICKER
+
 yarn add @react-native-picker/picker
