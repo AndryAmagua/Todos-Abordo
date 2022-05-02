@@ -24,3 +24,15 @@ yarn add yup
 -COMPONENTE PICKER
 
 yarn add @react-native-picker/picker
+
+-React Native Image Picker
+
+yarn add react-native-image-picker
+
+cd ios && pod install
+
+-react-native-multi-selectbox
+
+yarn add react-native-multi-selectbox
+
+yarn add react-native-svg
