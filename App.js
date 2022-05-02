@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -6,8 +6,10 @@ import Login from './src/screens/Login';
 import MenuUsuario from './src/screens/Usuario/MenuUsuario';
 import Admin from './src/screens/Admin/Inicio';
 import Registro from './src/screens/Registro';
+import Camera from './src/screens/Camera'
 
 const Stack = createNativeStackNavigator();
+
 
 const App = () => {
   return (

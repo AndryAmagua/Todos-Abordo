@@ -6,6 +6,7 @@ import CustomButton from '../components/CustomButton';
 import SocialButtons from '../components/SocialButtons';
 
 const Login = ({ navigation }) => {
+  
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
 
