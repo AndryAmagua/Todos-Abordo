@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, View, Pressable } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, Pressable, LogBox } from 'react-native';
+LogBox.ignoreAllLogs()
 
 const Categoria = ({ navigation, route }) => {
   const [isLoading, setLoading] = useState(true);
@@ -36,7 +37,7 @@ const Categoria = ({ navigation, route }) => {
               padding: 10
             }}>
               <Pressable
-              onPress={() => navigation.navigate('Lugar', {lugar: item})}
+                onPress={() => navigation.navigate('Lugar', { lugar: item })}
               >
                 <Text>{item.titulo}, {item.descripcion}</Text>
               </Pressable>

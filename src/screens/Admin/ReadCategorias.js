@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TextInput, View, Pressable, Modal } from 'react-native';
+import { ActivityIndicator, FlatList, Text, TextInput, View, Pressable, Modal, LogBox } from 'react-native';
+LogBox.ignoreAllLogs()
 
 const ReadCategorias = () => {
     const [isLoading, setLoading] = useState(true);
@@ -56,12 +57,12 @@ const ReadCategorias = () => {
             >
                 <View>
                     <TextInput
-                    value={nombre}
-                    onChangeText={setNombre}
-                    placeholder="nombre"
+                        value={nombre}
+                        onChangeText={setNombre}
+                        placeholder="nombre"
                     />
                     <Pressable
-                    onPress={() => crearCategoria()}
+                        onPress={() => crearCategoria()}
                     >
                         <Text>CREAR</Text>
                     </Pressable>

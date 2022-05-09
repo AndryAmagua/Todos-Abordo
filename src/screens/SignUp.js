@@ -1,35 +1,36 @@
-import { View, Text, Button } from 'react-native'
+import { View, Text, Button, TextInput, LogBox } from 'react-native'
 import React from 'react'
 import { Formik } from 'formik'
-import { TextInput } from 'react-native-gesture-handler'
 import * as yup from 'yup'
 import { Picker } from '@react-native-picker/picker'
+LogBox.ignoreAllLogs()
 
 const validationSchema = yup.object({
     nombre: yup.string()
-        .required(),
+        .required("Nombre de usuario obligatorio"),
     celular: yup.string()
+        .min(10, "Minimo 10 numeros")
         .max(10, "Maximo 10 numeros")
-        .required(),
+        .required("Numero celular obligatorio"),
     sector: yup.string()
         .oneOf(
             ["Yacucalle", "La Victoria", "Caranqui", "Los Ceibos", "Otro"], "Sector no valido"
         )
-        .required("Seleccione un sector."),
+        .required("Seleccione un sector"),
     correo: yup.string()
         .email('Correo no valido')
-        .required(),
+        .required("Correo Obligatorio"),
     contraseña: yup.string()
         .min(4, "Minimo 4 caracteres")
-        .required("Ingrese una contraseña"),
+        .required("Contraseña obligatoria"),
     validacion: yup.string()
-        .required('Falta la validacion')
-        .test("passwords-match", "Las contraseñas deben coincidir.", function (valor) {
+        .required('Validacion de contraseña obligatoria')
+        .test("passwords-match", "Los valores no coinciden", function (valor) {
             return this.parent.contraseña == valor;
         }),
 })
 
-const Registro = () => {
+const SignUp = ({ navigation }) => {
     return (
         <View>
             <Formik
@@ -50,6 +51,7 @@ const Registro = () => {
                         })
                     }).then(() => {
                         alert("Usuario creado")
+                        navigation.navigate('Sign-In');
                     }).catch(err => {
                         alert("Ocurrio un error")
                     })
@@ -114,4 +116,4 @@ const Registro = () => {
     )
 }
 
-export default Registro
+export default SignUp

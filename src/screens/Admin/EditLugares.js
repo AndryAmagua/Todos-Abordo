@@ -1,5 +1,6 @@
-import { View, Text, TextInput, FlatList, Alert, Pressable, Image, StyleSheet } from 'react-native'
+import { View, Text, TextInput, FlatList, Alert, Pressable, Image, StyleSheet, LogBox } from 'react-native'
 import React, { useState } from 'react'
+LogBox.ignoreAllLogs()
 
 const EditLugares = ({ navigation, route }) => {
     const [id, setId] = useState(route.params.lugar._id);
@@ -70,7 +71,7 @@ const EditLugares = ({ navigation, route }) => {
                         borderRadius: 5,
                         marginVertical: 10
                     }}>
-                            <Text>{item}</Text>
+                        <Text>{item}</Text>
                     </View>
                 )}
             />

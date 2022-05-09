@@ -1,5 +1,7 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { LogBox } from 'react-native'
+LogBox.ignoreAllLogs()
 
 import ReadLugares from './ReadLugares'
 import EditLugares from './EditLugares'

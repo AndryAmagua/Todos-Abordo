@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, LogBox } from 'react-native';
+LogBox.ignoreAllLogs()
 
 const Usuarios = () => {
     const [isLoading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ const Usuarios = () => {
     useEffect(() => {
         getUsuarios();
     }, []);
-    
+
     return (
         <View style={{ padding: 24 }}>
             {isLoading ? <ActivityIndicator /> : (

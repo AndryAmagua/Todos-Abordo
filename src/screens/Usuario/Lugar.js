@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, Image, FlatList } from 'react-native'
+import { View, Text, StyleSheet, Image, FlatList, LogBox } from 'react-native'
 import React from 'react'
+LogBox.ignoreAllLogs()
 
 const Lugar = ({ route }) => {
     return (
@@ -12,7 +13,7 @@ const Lugar = ({ route }) => {
             <Text>{route.params.lugar.descripcion}</Text>
             <FlatList
                 data={route.params.lugar.servicio}
-                keyExtractor={(item, index) => item._id}
+                keyExtractor={(item, index) => index}
                 renderItem={({ item }) => (
                     <View style={{
                         backgroundColor: "beige",

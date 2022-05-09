@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, FlatList, Text, View, Pressable, Modal, TextInput, StyleSheet, Dimensions, Image, TouchableOpacity, Alert } from 'react-native';
+import { ActivityIndicator, ScrollView, FlatList, Text, View, Pressable, Modal, TextInput, StyleSheet, Dimensions, Image, TouchableOpacity, Alert, Button } from 'react-native';
 import * as ImagePicker from 'react-native-image-picker'
 import SelectBox from 'react-native-multi-selectbox'
 import { xorBy } from 'lodash'
+import { LogBox } from 'react-native'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+LogBox.ignoreAllLogs()
 
 const K_OPTIONS = [
     {
@@ -22,18 +26,26 @@ const K_OPTIONS = [
         id: 'Diversión',
     }
 ]
+const validationSchema = yup.object({
+    titulo: yup.string()
+        .required("Titulo de lugar obligatorio"),
+    descripcion: yup.string()
+        .required("Descripción de lugar obligatoria"),
+    ubicacion: yup.string()
+        .required("Dirección obligatoria"),
+    contacto: yup.string()
+        .max(10, "Maximo 10 números")
+        .required("Número de contacto obligatorio"),
+    valoracion: yup.string()
+        .required("Valoración obligatoria")
+})
 
 const ReadLugares = ({ navigation }) => {
     const [isLoading, setLoading] = useState(true);
     const [data, setData] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const [titulo, setTitulo] = useState('');
-    const [descripcion, setDescripcion] = useState('');
     const [imagen, setImagen] = useState('');
-    const [ubicacion, setUbicacion] = useState('');
-    const [contacto, setContacto] = useState('');
-    const [valoracion, setValoracion] = useState('');
     const [categorias, setCategorias] = useState([])
 
 
@@ -99,39 +111,6 @@ const ReadLugares = ({ navigation }) => {
         }
     }
 
-    function crearLugar() {
-        const nuevoArray = []
-        categorias.map(item =>{
-            nuevoArray.push(item.item)
-        })
-
-        fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                titulo: titulo,
-                descripcion: descripcion,
-                imagenPerfil: imagen,
-                ubicacion: ubicacion,
-                contacto: contacto,
-                servicio: nuevoArray,
-                valoracion: valoracion,
-            })
-        }).then(() => {
-            setModalVisible(!modalVisible);
-            setTitulo('');
-            setDescripcion('');
-            setImagen('');
-            setUbicacion('');
-            setContacto('');
-            setCategorias([]);
-            setValoracion('');
-            getLugares();
-        })
-    }
-
     const getLugares = async () => {
         try {
             const response = await fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares');
@@ -147,129 +126,146 @@ const ReadLugares = ({ navigation }) => {
     function onMultiChange() {
         return (item) => setCategorias(xorBy(categorias, [item]))
     }
-    function verArray() {
-        const nuevoArray = []
-        categorias.map(item =>{
-            nuevoArray.push(item.item)
-        })
-        console.log(nuevoArray)
-    }
 
     useEffect(() => {
         getLugares();
     }, []);
 
     return (
-        <View style={{ padding: 24 }}>
-            <Pressable
-                onPress={() => setModalVisible(true)}>
-                <Text>Añadir</Text>
-            </Pressable>
-
+        <View>
             <Modal
                 animationType="slide"
                 transparent={false}
                 visible={modalVisible}
+                style={{ padding: 20 }}
                 onRequestClose={() => {
                     setModalVisible(!modalVisible);
-                    setTitulo('');
-                    setDescripcion('');
                     setImagen('');
-                    setUbicacion('');
-                    setContacto('');
                     setCategorias([]);
-                    setValoracion('');
                 }}
             >
                 <ScrollView>
-                    <View>
-                        <TextInput
-                            value={titulo}
-                            onChangeText={setTitulo}
-                            placeholder="titulo"
-                        />
-                        <TextInput
-                            multiline={true}
-                            value={descripcion}
-                            onChangeText={setDescripcion}
-                            placeholder="descripcion"
-                        />
+                    <Formik
+                        initialValues={{ titulo: '', descripcion: '', ubicacion: '', contacto: '', valoracion: '' }}
+                        validationSchema={validationSchema}
+                        onSubmit={(values) => {
+                            const nuevoArray = []
+                            categorias.map(item => {
+                                nuevoArray.push(item.item)
+                            })
 
-                        <Text style={{ textAlign: 'center', fontSize: 20, paddingBottom: 10 }} >Imagen de Portada</Text>
-                        <View style={styles.ImageSections}>
+                            fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    titulo: values.titulo,
+                                    descripcion: values.descripcion,
+                                    imagenPerfil: imagen,
+                                    ubicacion: values.ubicacion,
+                                    contacto: values.contacto,
+                                    servicio: nuevoArray,
+                                    valoracion: values.valoracion,
+                                })
+                            }).then(() => {
+                                alert("Usuario creado")
+                                setModalVisible(!modalVisible)
+                                getLugares()
+                            }).catch(err => {
+                                alert("Ocurrio un error")
+                            })
+                        }}
+                    >
+                        {(props) => (
                             <View>
-                                {renderFileUri()}
+                                <Button title='submit' color='blue' onPress={props.handleSubmit} />
+                                <TextInput
+                                    placeholder='Titulo'
+                                    onChangeText={props.handleChange('titulo')}
+                                    value={props.values.titulo}
+                                    onBlur={props.handleBlur('titulo')}
+                                />
+                                <Text>{props.touched.titulo && props.errors.titulo}</Text>
+                                <TextInput
+                                    placeholder='Descripción'
+                                    onChangeText={props.handleChange('descripcion')}
+                                    value={props.values.descripcion}
+                                    onBlur={props.handleBlur('descripcion')}
+                                />
+                                <Text>{props.touched.descripcion && props.errors.descripcion}</Text>
+                                {/* -----------> Imagen */}
+                                <Text >Imagen de Portada</Text>
+                                <View>
+                                    <View>
+                                        {renderFileUri()}
+                                    </View>
+                                </View>
+                                <View>
+                                    <Button title='Abrir Camara' color='blue' onPress={launchCamera} />
+                                    <Button title='Abrir Galeria' color='blue' onPress={launchImageLibrary} />
+                                </View>
+                                {/* -----------> Imagen */}
+                                <TextInput
+                                    placeholder='Ubicación'
+                                    onChangeText={props.handleChange('ubicacion')}
+                                    value={props.values.correo}
+                                    onBlur={props.handleBlur('ubicacion')}
+                                />
+                                <Text>{props.touched.ubicacion && props.errors.ubicacion}</Text>
+                                <TextInput
+                                    placeholder='Contacto'
+                                    keyboardType='numeric'
+                                    onChangeText={props.handleChange('contacto')}
+                                    value={props.values.contacto}
+                                    onBlur={props.handleBlur('contacto')}
+                                />
+                                <Text>{props.touched.contacto && props.errors.contacto}</Text>
+                                <TextInput
+                                    placeholder='Valoración'
+                                    onChangeText={props.handleChange('valoracion')}
+                                    value={props.values.valoracion}
+                                    onBlur={props.handleBlur('valoracion')}
+                                />
+                                <Text>{props.touched.valoracion && props.errors.valoracion}</Text>
                             </View>
-                        </View>
-                        <View style={styles.btnParentSection}>
-                            <TouchableOpacity onPress={launchCamera} style={styles.btnSection}  >
-                                <Text style={styles.btnText}>Abrir Camara</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={launchImageLibrary} style={styles.btnSection}  >
-                                <Text style={styles.btnText}>Abrir Galeria</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <TextInput
-                            value={ubicacion}
-                            onChangeText={setUbicacion}
-                            placeholder="ubicacion"
-                        />
-                        <TextInput
-                            value={contacto}
-                            onChangeText={setContacto}
-                            placeholder="contacto"
-                        />
-
-                        <TextInput
-                            value={valoracion}
-                            onChangeText={setValoracion}
-                            placeholder="valoracion"
-                        />
-                        <Pressable
-                            onPress={() => crearLugar()}
-                        >
-                            <Text>CREAR</Text>
-                        </Pressable>
-                    </View>
+                        )}
+                    </Formik>
                 </ScrollView>
-                <View style={{ margin: 30 }}>
-                    <Text style={{ fontSize: 20, paddingBottom: 10 }}>Seleccione las categorías</Text>
+                <View style={{ margin: 20 }}>
                     <SelectBox
-                        label="Select multiple"
+                        label="Seleccione las categorías correspondientes al lugar"
                         options={K_OPTIONS}
                         selectedValues={categorias}
                         onMultiSelect={onMultiChange()}
                         onTapClose={onMultiChange()}
+                        hideInputFilter={true}
                         isMulti
                     />
                 </View>
-                <Pressable
-                    onPress={() => verArray()}
-                >
-                    <Text>VER ARRAY</Text>
-                </Pressable>
             </Modal>
-
             {isLoading ? <ActivityIndicator /> : (
-                <FlatList
-                    data={data}
-                    keyExtractor={(item, index) => item._id}
-                    renderItem={({ item }) => (
-                        <View style={{
-                            backgroundColor: "beige",
-                            borderWidth: 1,
-                            padding: 10,
-                            borderRadius: 5,
-                            marginVertical: 10
-                        }}>
-                            <Pressable
-                                onPress={() => navigation.navigate('EditLugares', { lugar: item })}>
-                                <Text>{item.titulo}, {item.descripcion}</Text>
-                            </Pressable>
-                        </View>
-                    )}
-                />
+                <View>
+                    <Button title='Agregar' color='blue' onPress={() => setModalVisible(true)} />
+                    <FlatList
+                        data={data}
+                        keyExtractor={(item, index) => item._id}
+                        renderItem={({ item }) => (
+                            <View style={{
+                                backgroundColor: "beige",
+                                borderWidth: 1,
+                                padding: 10,
+                                borderRadius: 5,
+                                marginVertical: 10
+                            }}>
+                                <Pressable
+                                    onPress={() => navigation.navigate('EditLugares', { lugar: item })}>
+                                    <Text>{item.titulo}, {item.descripcion}</Text>
+                                </Pressable>
+                            </View>
+                        )}
+                    />
+                </View>
             )}
         </View>
     )
@@ -278,49 +274,12 @@ const ReadLugares = ({ navigation }) => {
 export default ReadLugares
 
 const styles = StyleSheet.create({
-    scrollView: {
-        backgroundColor: 'white',
-    },
-
-    body: {
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        borderColor: 'black',
-        borderWidth: 1,
-        height: Dimensions.get('screen').height - 20,
-        width: Dimensions.get('screen').width
-    },
-    ImageSections: {
-        display: 'flex',
-        flexDirection: 'row',
-        paddingHorizontal: 8,
-        paddingVertical: 8,
-        justifyContent: 'center'
-    },
     images: {
         width: 150,
         height: 150,
         borderColor: 'black',
         borderWidth: 1,
-        marginHorizontal: 3
-    },
-    btnParentSection: {
-        alignItems: 'center',
-        marginTop: 10
-    },
-    btnSection: {
-        width: 225,
-        height: 50,
-        backgroundColor: '#DCDCDC',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 3,
-        marginBottom: 10
-    },
-    btnText: {
-        textAlign: 'center',
-        color: 'gray',
-        fontSize: 14,
-        fontWeight: 'bold'
+        marginHorizontal: 3,
+        resizeMode: 'stretch'
     }
 });
