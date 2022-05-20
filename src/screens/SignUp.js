@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, LogBox } from 'react-native'
+import { View, Text, Button, TextInput, LogBox, ScrollView, Alert } from 'react-native'
 import React from 'react'
 import { Formik } from 'formik'
 import * as yup from 'yup'
@@ -28,33 +28,51 @@ const validationSchema = yup.object({
         .test("passwords-match", "Los valores no coinciden", function (valor) {
             return this.parent.contraseña == valor;
         }),
+    primera: yup.string()
+        .required('Respuesta de seguridad obligatoria'),
+    segunda: yup.string()
+        .required('Respuesta de seguridad obligatoria'),
+    tercera: yup.string()
+        .required('Respuesta de seguridad obligatoria'),
 })
 
-const SignUp = ({ navigation }) => {
+const SignUp = ({ navigation: { goBack } }) => {
+
+    const onSignUp = async (nombre, celular, correo, contraseña, sector, respuestas) => {
+        try {
+            const response = await fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/usuarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    celular: celular,
+                    correo: correo,
+                    contraseña: contraseña,
+                    sector: sector,
+                    respuestas: respuestas
+                })
+            });
+            const json = await response.json()
+            if (json.ok == true) {
+                Alert.alert("Aviso", json.message)
+                goBack()
+            } else {
+                Alert.alert("Aviso", json.message)
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
-        <View>
+        <ScrollView style={{ margin: 10 }}>
             <Formik
-                initialValues={{ nombre: '', celular: '', sector: '', correo: '', contraseña: '', validacion: '' }}
+                initialValues={{ nombre: '', celular: '', sector: '', correo: '', contraseña: '', validacion: '', primera: '', segunda: '', tercera: '' }}
                 validationSchema={validationSchema}
                 onSubmit={(values) => {
-                    fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/usuarios', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            nombre: values.nombre,
-                            celular: values.celular,
-                            correo: values.correo,
-                            contraseña: values.contraseña,
-                            sector: values.sector,
-                        })
-                    }).then(() => {
-                        alert("Usuario creado")
-                        navigation.navigate('Sign-In');
-                    }).catch(err => {
-                        alert("Ocurrio un error")
-                    })
+                    onSignUp(values.nombre, values.celular, values.correo, values.contraseña, values.sector, [values.primera, values.segunda, values.tercera])
                 }}
             >
                 {(props) => (
@@ -108,11 +126,38 @@ const SignUp = ({ navigation }) => {
                             onBlur={props.handleBlur('validacion')}
                         />
                         <Text>{props.touched.validacion && props.errors.validacion}</Text>
-                        <Button title='submit' color='blue' onPress={props.handleSubmit} />
+
+                        <Text>¿Pelicula favorita?</Text>
+                        <TextInput
+                            placeholder='Respuesta 1'
+                            onChangeText={props.handleChange('primera')}
+                            value={props.values.primera}
+                            onBlur={props.handleBlur('primera')}
+                        />
+                        <Text>{props.touched.primera && props.errors.primera}</Text>
+                        <Text>¿Comida favorita?</Text>
+                        <TextInput
+                            placeholder='Respuesta 2'
+                            onChangeText={props.handleChange('segunda')}
+                            value={props.values.segunda}
+                            onBlur={props.handleBlur('segunda')}
+                        />
+                        <Text>{props.touched.segunda && props.errors.segunda}</Text>
+                        <Text>¿Nombre de su primera mascota?</Text>
+                        <TextInput
+                            placeholder='Respuesta 3'
+                            onChangeText={props.handleChange('tercera')}
+                            value={props.values.tercera}
+                            onBlur={props.handleBlur('tercera')}
+                        />
+                        <Text>{props.touched.tercera && props.errors.tercera}</Text>
+
+                        <Button title='crear cuenta' color='blue' onPress={props.handleSubmit} />
+                        <Button title='cancelar' color='grey' onPress={() => goBack()} />
                     </View>
                 )}
             </Formik>
-        </View>
+        </ScrollView>
     )
 }
 

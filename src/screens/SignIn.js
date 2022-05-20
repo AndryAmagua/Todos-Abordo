@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Button, TextInput, LogBox, Image } from 'react-native';
+import { View, Text, StyleSheet, Button, TextInput, LogBox, Image, Alert } from 'react-native';
 import React from 'react'
 import { Formik } from 'formik'
 import * as yup from 'yup'
@@ -30,14 +30,12 @@ const SigIn = (props) => {
       });
       const json = await response.json();
       const value = JSON.stringify(json)
-      console.log(value)
       if (json.correo) {
-        console.log("sign in")
         AsyncStorage.setItem('usuario', value)
         AsyncStorage.setItem('login', "true")
         props.route.params.funcion()
       } else {
-        console.log(json.message)
+        Alert.alert("Aviso", json.message)
       }
     } catch (error) {
       console.error(error);
@@ -70,12 +68,12 @@ const SigIn = (props) => {
               onBlur={props.handleBlur('contraseña')}
             />
             <Text>{props.touched.contraseña && props.errors.contraseña}</Text>
-            <Button title='submit' color='blue' onPress={props.handleSubmit} />
+            <Button title='Iniciar sesion' color='blue' onPress={props.handleSubmit} />
           </View>
         )}
       </Formik>
-      <Button title='Sign Up' color='blue' onPress={() => props.navigation.navigate('Sign-Up')} />
-      <Button title='Recover Password' color='blue' onPress={() => props.navigation.navigate('Recover-Password')} />
+      <Button title='Creaar cuenta' color='yellow' onPress={() => props.navigation.navigate('Sign-Up')} />
+      <Button title='Recuperar contraseña' color='grey' onPress={() => props.navigation.navigate('Recover-Password')} />
     </View>
   )
 }

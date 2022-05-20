@@ -7,7 +7,7 @@ LogBox.ignoreAllLogs()
 import Loading from './src/screens/Loading';
 import SigIn from './src/screens/SignIn';
 import SignUp from './src/screens/SignUp';
-import RecoverPassword from './RecoverPassword';
+import RecoverPassword from './src/screens/RecoverPassword';
 import Usuario from './src/screens/Usuario/Usuario';
 import Admin from './src/screens/Admin/Inicio';
 
@@ -23,7 +23,7 @@ const App = () => {
   useEffect(() => {
     setTimeout(() => {
       readData();
-    }, 5000)
+    }, 3000)
   }, []);
 
   const readData = async () => {

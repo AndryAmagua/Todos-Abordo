@@ -8,31 +8,35 @@ import { Formik } from 'formik'
 import * as yup from 'yup'
 LogBox.ignoreAllLogs()
 
-const K_OPTIONS = [
-    {
-        item: 'Gastronomía',
-        id: 'Gastronomía',
-    },
-    {
-        item: 'Hotelería',
-        id: 'Hotelería',
-    },
-    {
-        item: 'Aventura',
-        id: 'Aventura',
-    },
-    {
-        item: 'Diversión',
-        id: 'Diversión',
-    }
-]
+// const K_OPTIONS = [
+//     {
+//         item: 'Gastronomía',
+//         id: 'Gastronomía',
+//     },
+//     {
+//         item: 'Hotelería',
+//         id: 'Hotelería',
+//     },
+//     {
+//         item: 'Aventura',
+//         id: 'Aventura',
+//     },
+//     {
+//         item: 'Diversión',
+//         id: 'Diversión',
+//     }
+// ]
+
+const K_OPTIONS = []
 const validationSchema = yup.object({
     titulo: yup.string()
         .required("Titulo de lugar obligatorio"),
     descripcion: yup.string()
         .required("Descripción de lugar obligatoria"),
-    ubicacion: yup.string()
-        .required("Dirección obligatoria"),
+    ubicacionTitulo: yup.string()
+        .required("Titulo de dirección obligatorio"),
+    ubicacionLink: yup.string()
+        .required("Link de dirección obligatorio"),
     contacto: yup.string()
         .max(10, "Maximo 10 números")
         .required("Número de contacto obligatorio"),
@@ -123,12 +127,65 @@ const ReadLugares = ({ navigation }) => {
         }
     }
 
+    const getCategorias = async () => {
+        try {
+            if (K_OPTIONS.length == 0) {
+                const response = await fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/categorias');
+                const json = await response.json();
+                json.map((item) => {
+                    K_OPTIONS.push({
+                        item: item.nombre,
+                        id: item.nombre
+                    })
+                })
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     function onMultiChange() {
         return (item) => setCategorias(xorBy(categorias, [item]))
     }
 
+    const createLugares = async (titulo, descripcion, ubicacionTitulo, ubicacionLink, servicio, contacto, valoracion) => {
+        try {
+            const response = await fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    titulo: titulo,
+                    descripcion: descripcion,
+                    imagenPerfil: imagen,
+                    ubicacionTitulo: ubicacionTitulo,
+                    ubicacionLink: ubicacionLink,
+                    contacto: contacto,
+                    servicio: servicio,
+                    valoracion: valoracion,
+                })
+            });
+            const json = await response.json();
+            if (json.ok == false) {
+                Alert.alert("Aviso", json.message)
+            } else {
+                Alert.alert("Aviso", json.message)
+                setModalVisible(!modalVisible)
+                setImagen('')
+                setCategorias([])
+                getLugares()
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     useEffect(() => {
         getLugares();
+        getCategorias();
     }, []);
 
     return (
@@ -146,35 +203,20 @@ const ReadLugares = ({ navigation }) => {
             >
                 <ScrollView>
                     <Formik
-                        initialValues={{ titulo: '', descripcion: '', ubicacion: '', contacto: '', valoracion: '' }}
+                        initialValues={{ titulo: '', descripcion: '', ubicacionTitulo: '', ubicacionLink: '', contacto: '', valoracion: '' }}
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
                             const nuevoArray = []
-                            categorias.map(item => {
+                            categorias.map((item) => {
                                 nuevoArray.push(item.item)
                             })
-
-                            fetch('https://tabapi-andryamagua5-gmailcom.vercel.app/lugares', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    titulo: values.titulo,
-                                    descripcion: values.descripcion,
-                                    imagenPerfil: imagen,
-                                    ubicacion: values.ubicacion,
-                                    contacto: values.contacto,
-                                    servicio: nuevoArray,
-                                    valoracion: values.valoracion,
-                                })
-                            }).then(() => {
-                                alert("Usuario creado")
-                                setModalVisible(!modalVisible)
-                                getLugares()
-                            }).catch(err => {
-                                alert("Ocurrio un error")
-                            })
+                            if (categorias.length == 0) {
+                                Alert.alert("Aviso", "Seleccione una o mas categorias")
+                            } else if (imagen == '') {
+                                Alert.alert("Aviso", "Imagen de portada no seleccionada")
+                            } else {
+                                createLugares(values.titulo, values.descripcion, values.ubicacionTitulo, values.ubicacionLink, nuevoArray, values.contacto, values.valoracion)
+                            }
                         }}
                     >
                         {(props) => (
@@ -207,12 +249,19 @@ const ReadLugares = ({ navigation }) => {
                                 </View>
                                 {/* -----------> Imagen */}
                                 <TextInput
-                                    placeholder='Ubicación'
-                                    onChangeText={props.handleChange('ubicacion')}
-                                    value={props.values.correo}
-                                    onBlur={props.handleBlur('ubicacion')}
+                                    placeholder='Ubicación titulo'
+                                    onChangeText={props.handleChange('ubicacionTitulo')}
+                                    value={props.values.ubicacionTitulo}
+                                    onBlur={props.handleBlur('ubicacionTitulo')}
                                 />
-                                <Text>{props.touched.ubicacion && props.errors.ubicacion}</Text>
+                                <Text>{props.touched.ubicacionTitulo && props.errors.ubicacionTitulo}</Text>
+                                <TextInput
+                                    placeholder='Ubicación link'
+                                    onChangeText={props.handleChange('ubicacionLink')}
+                                    value={props.values.ubicacionLink}
+                                    onBlur={props.handleBlur('ubicacionLink')}
+                                />
+                                <Text>{props.touched.ubicacionLink && props.errors.ubicacionLink}</Text>
                                 <TextInput
                                     placeholder='Contacto'
                                     keyboardType='numeric'
@@ -243,30 +292,42 @@ const ReadLugares = ({ navigation }) => {
                         isMulti
                     />
                 </View>
+                <Button title='cancelar' color='red' onPress={() => {
+                    setModalVisible(!modalVisible);
+                    setImagen('');
+                    setCategorias([]);
+                }} />
             </Modal>
-            {isLoading ? <ActivityIndicator /> : (
-                <View>
-                    <Button title='Agregar' color='blue' onPress={() => setModalVisible(true)} />
-                    <FlatList
-                        data={data}
-                        keyExtractor={(item, index) => item._id}
-                        renderItem={({ item }) => (
-                            <View style={{
-                                backgroundColor: "beige",
-                                borderWidth: 1,
-                                padding: 10,
-                                borderRadius: 5,
-                                marginVertical: 10
-                            }}>
-                                <Pressable
-                                    onPress={() => navigation.navigate('EditLugares', { lugar: item })}>
-                                    <Text>{item.titulo}, {item.descripcion}</Text>
-                                </Pressable>
-                            </View>
-                        )}
-                    />
-                </View>
-            )}
+            {isLoading ? <ActivityIndicator /> :
+                (data.length == 0) ?
+                    (
+                        <View>
+                            <Button title='Agregar' color='blue' onPress={() => setModalVisible(true)} />
+                            <Text>No hay lugares que mostrar</Text>
+                        </View>
+                    ) : (
+                        <View>
+                            <Button title='Agregar' color='blue' onPress={() => setModalVisible(true)} />
+                            <FlatList
+                                data={data}
+                                keyExtractor={(item, index) => item._id}
+                                renderItem={({ item }) => (
+                                    <View style={{
+                                        backgroundColor: "beige",
+                                        borderWidth: 1,
+                                        padding: 10,
+                                        borderRadius: 5,
+                                        marginVertical: 10
+                                    }}>
+                                        <Pressable
+                                            onPress={() => navigation.navigate('EditLugares', { lugar: item, funcion: getLugares })}>
+                                            <Text>{item.titulo}, {item.descripcion}</Text>
+                                        </Pressable>
+                                    </View>
+                                )}
+                            />
+                        </View>
+                    )}
         </View>
     )
 }
